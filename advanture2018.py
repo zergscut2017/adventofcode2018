@@ -100,3 +100,17 @@ print(most_similar)
 print('Day2 quiz 2')
 print(find_boxid(most_similar[0], most_similar[1]))
 
+##################
+# How experts solve day2
+##################
+cat = ''.join
+def common(A, B):
+    return cat(a for a,b in zip(A, B) if a == b)
+def diff(A, B):
+    return sum(a != b for a, b in zip(A, B))
+print(common(*[i for i in input2 if any(diff(i, x) == 1 for x in input2)]))
+# The best solution is only 1 difference, but what if it does not exist?
+# In the quiz, it indicates that "However, the IDs fghij and fguij differ 
+# by exactly one character, the third (h and u). Those must be the correct
+# boxes.
+
