@@ -100,9 +100,9 @@ print(most_similar)
 print('Day2 quiz 2')
 print(find_boxid(most_similar[0], most_similar[1]))
 
-##################
+"""
 # How experts solve day2
-##################
+"""
 cat = ''.join
 def common(A, B):
     return cat(a for a,b in zip(A, B) if a == b)
@@ -114,3 +114,106 @@ print(common(*[i for i in input2 if any(diff(i, x) == 1 for x in input2)]))
 # by exactly one character, the third (h and u). Those must be the correct
 # boxes.
 
+"""
+day 3
+"""
+
+import re
+
+def read_integers(input):
+    arr = list()
+    for text in input:
+        arr.append(tuple(map(int, re.findall(r'-?\d+', text))))
+    return arr
+
+def inputd3(file):
+    arr = list()
+    for line in file:
+        arr.append(line.strip())
+    return arr
+
+input3 = inputd3(read_file(3))
+input3claims = read_integers(input3)
+
+from collections import Counter
+from itertools import product
+
+def claimd(claims):
+    C = Counter()
+    for (id, x, y, w, h) in claims:
+        C += Counter(product(range(x, x+w), range(y, y+h)))
+    return C
+
+def find_overlap(dic, overlap):
+    num = 0
+    for x in dic:
+        if dic[x] >= overlap:
+            num += 1
+    return num
+print('day3 quiz 1')
+print(find_overlap(claimd(input3claims), 2))
+
+def claimd2(claims):
+    C = claimd(claims)
+    for (id, x, y, w, h) in claims:
+        if all(C[pos] == 1 for pos in product(range(x, x+w), range(y, y+h))):
+            return id
+
+print('day3 quiz 2')
+print(claimd2(input3claims))
+
+
+"""
+day 4
+"""
+def inputd4(file):
+    #arr = list()
+    for line in file:
+        yield line.strip()
+
+def parse_record(text):
+    text = re.sub('[][#:]', ' ', text)
+    day, hour, mins, opcode, arg, *rest = text.split()
+    return day, int(mins), opcode, arg
+
+file = read_file(4)
+day4data = sorted(map(parse_record, inputd4(file)))
+
+from collections import defaultdict
+
+def time_record(data):
+    """
+    return {guard: [day: [asleep_range]]}
+    """
+    sleep = defaultdict(lambda: defaultdict(list))  # sleep[guard][day] = [minutes ..]
+    for day, mins, opcode, arg in data:
+        if opcode == 'Guard':
+            guard = int(arg)
+        elif opcode == 'falls':
+            falls = mins
+        elif opcode == 'wakes':
+            wakes = mins
+            sleep[guard][day].extend(range(falls, wakes))
+        else:
+            raise ValueError
+    return sleep
+
+cleaned_data_day4 = time_record(day4data)
+
+def sleepmost_guard(sleep):
+    return max(sleep, key=lambda guard: sum(map(len, sleep[guard].values())))
+
+def sleepmost_minute(guard, sleep):
+    def times_alseep(m) : 
+        return sum(m in mins for mins in sleep[guard].values())
+    return max(range(60), key=times_alseep)
+
+def result_day4_1(sleep_data):
+    guard = sleepmost_guard(sleep_data)
+    print(guard)
+    minute = sleepmost_minute(guard, sleep_data)
+    print(minute)
+    return guard*minute
+
+print('day4 quiz 1:')
+print(result_day4_1(cleaned_data_day4))
